@@ -1,0 +1,1044 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/math.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+		<script src="https://d3js.org/d3.v6.min.js"></script>
+		<script src="https://kit.fontawesome.com/f2a2642246.js" crossorigin="anonymous"></script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section style="margin-top:250px">
+					<h2>Reeb Graph metrics from the ground up</h2>
+					<div style="font-size:35px;margin-top:20px;"><b>Brian Bollen</b> </div>
+					<div style="font-size:25px;">PhD Candidate, Applied Mathematics, University of Arizona</div>	
+					<div style="font-size:20px;margin-top:30px;"><b>Professor Joshua Levine</b> (Computer Science, University of Arizona)</div>
+					<div style="font-size:20px;margin-top:5px;"><b>Professor Elizabeth Munch</b> (Computational Mathematics, Science, and Engineering at Michigan State University)
+					<div style="font-size:20px;margin-top:5px;"><b>Professor Erin Wolf Chambers</b> (Computer Science at Saint Louis University)</div>
+
+				</section>
+
+
+<!-- 
+				<section>
+					<h3>Why Use Topology for Data Analysis</h3>
+					<div style="display:flex;flex-direction:column;">
+
+					<div class="statement fragment fade-up"  data-fragment-index="1">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							Provides structural summaries of data with natural ways to scale data appropriately.
+						</div>
+					</div>
+
+					<div class="statement fragment fade-up"  data-fragment-index="2">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+								Computationally robust due to discrete nature and readily available to map to visual features.
+						</div>
+					</div>
+
+
+				</section> -->
+				<section>
+					<h3>Introduction</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Topological descriptors are now used heavily for various scalar field visualization tasks such as symmetry detection, ensemble scalar field comparisons, and feature tracking in time-dependent scalar fields
+							</div>
+						</div>
+						<div class="statement fragment fade-up"  >
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Defining informative distances on these descriptors are crucial in a comparison task.
+							</div>
+						</div>
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Reeb graph, contour trees, and merge trees are all <b> graph-based</b> topological descriptors -- distinct from <b>set-based</b> descriptors such as persistence diagrams and <b>complex-based descriptors</b> such as the morse-smale complex.
+							</div>
+						</div>
+					</div>
+				</section>
+				
+				<section>
+					<h3>Scalar Fields</h3>
+					<!-- <div><b>Definition:</b> Let $\mathbb{X}$ be a topological space and let $f:\mathbb{X} \to \mathbb{R}$ be a continuous, real-valued function. The pair $(\mathbb{X},f)$ is called a <b>scalar field</b></div> -->
+
+					<div class="importance-box def fragment fade-left">
+						<!--  							 -->
+						<div class="content">
+							<div class="header">
+								<div class="label">Definition 1.1</div> 						
+							</div>
+							<div class="text-area">
+								 Let $\mathbb{X}$ be a topological space and let $f:\mathbb{X} \to \mathbb{R}$ be a continuous, real-valued function. The pair $(\mathbb{X},f)$ is called a <b>scalar field</b>.
+							</div>			
+						</div>
+					</div>
+					<div class="importance-box def alt fragment fade-left">						
+						<!--  							 -->
+						<div class="content">
+							<div class="header">
+								<div class="label">Definition 1.2</div> 						
+							</div>
+							<div class="text-area">
+								Let $U \subseteq \mathbb{X}$ be such that $f(x) = f(y) = a$ for all $a \in U$. We say that $U$ is the $a$-<b>fiber</b> or $a$-<b>levelset</b> of the scalar field $(\mathbb{X},f)$.
+							</div>			
+						</div>
+					</div>
+					<div class="img-container fragment fade-up">
+						<img src="figures/ScalarField.png" width="400"/>
+					</div>
+
+					<aside class="notes">
+						<ol>
+							<li>Scalar Field Topology</li>
+							<li>Level set topology</li>
+							<li>Read Definitions</li>
+						</ol>
+					</aside>
+				</section>
+				<section>
+					<h3>Reeb Graphs</h3>
+					<div style="display:flex;flex-direction:column;" class="fragment fade-out" data-fragment-index="3">
+						<div class="importance-box def fragment fade-left" data-fragment-index="1">
+							<div class="content">
+								<div class="header">
+									<div class="label">Definition 1.3</div> 						
+								</div>
+								<div class="text-area">
+									Let $(\mathbb{X},f)$ be a scalar field. We can define an equivalence relation on $\mathbb{X}$ by defining $x\sim y$ if $f(x) = f(y) = a$ (they belong to the same $a$-fiber) and if $x,y$ are in the same path connected component of the $a$-fiber. Let $\mathbb{X}_f$ be the quotient space  $\mathbb{X}/\sim_f$ and let $\tilde{f}$ be defined as $\tilde{f} \circ \rho = f$, where $\rho: \mathbb{X} \to \mathbb{X}_f$ is the quotient map defined by our equivalence relation. Then the pair $(\mathbb{X}_{f},\tilde{f}) =: \mathcal{R}_f$ is called the <b>Reeb Graph</b> of the scalar field $(\mathbb{X},f)$.
+								</div>		
+							</div>
+						</div>
+						<div class="img-container fragment fade-up" data-fragment-index="2">
+							<img src="figures/ScalarFieldReeb.jpg" width="700"/>
+						</div>					
+					</div>
+
+					<div class="fragment fade-up" data-fragment-index="3" style="position:absolute;top:100px;display:flex;flex-direction:column;">
+						<div class="statement">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Restrictions on the original scalar field are required to guarantee that the Reeb graph is a well-defined, 1-dimensional topological graph (e.g. constructibility, tameness, Morse functions, PL scalar fields, etc.)
+							</div>
+						</div>
+						<div class="img-container ">
+							<img src="figures/DomainRestrictions.png" width="1000"/>
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Scalar Fields and Reeb Graphs</h3>
+					<div style="display:flex;flex-direction:column;align-items: center;">
+						<div style="display:flex;flex-direction:row;">
+							<div class="img-container" style="flex:1;">
+								<img src="figures/dragonScalarField.png" class="img-alt" />
+							</div>
+							<div class="img-container" style="flex:1;">
+								<img src="figures/dragonScalarFieldContour.png" class="img-alt"/>
+							</div>	
+						</div>
+						<div style="font-size:0.6em;margin-top:20px;width:80%"> On the left, we have an example of a scalar field whose topological space is the surface of the dragon shape, and the function is its height (shown via color). On the right, we have the Reeb graph (contour tree) embedded within the dragon, whose opacity has been decreased. Image generated from [dragon.pvsm in TTK]</div>
+					</div>
+
+					<aside class="notes">
+						<ol>
+							<li>Left is a scalar field with color describing the function (just the height)</li>
+							<li>Reeb graph on the right with decreased opacity of the dragon</li>
+							<li>Level set topology highlights the relationship between the topological space and the function</li>
+							<li>Leafs of this Reeb graph correspond to specific features of the scalar field such as the feet, tail, and horns</li>
+						</ol>
+					</aside>
+
+				</section>
+
+
+				<section>
+					<h3>Distances for Reeb graphs</h3>
+
+					<div style="display:flex;flex-direction:column;">
+					
+							<div class="img-container fragment fade-up" style="flex:1;" data-fragment-index="2" >
+								<img src="figures/Distances0.png" />
+							</div>
+							<div class="img-container fragment fade-up" style="flex:1;" data-fragment-index="1">
+								<img src="figures/Distances1.png" />
+							</div>	
+							<div class="img-container fragment fade-up" style="flex:1;" data-fragment-index="3">
+								<img src="figures/Distances2.png"/>
+							</div>	
+							<div class="img-container fragment fade-up" style="flex:1;" data-fragment-index="4">
+								<img src="figures/Distances3.png"/>
+							</div>	
+
+
+
+
+					</div>
+
+
+
+					<aside class="notes">
+						<ol style="font-size:0.8em;">
+							<li>Due to the increase in computational power in recent years, simulations that we can create have also increased in complexity.</li>
+							<li>Often, these simulations use multiple facets of data instead of just one</li>
+							<li style="color:blue;">Click</li>
+							<li style="color:red;">Read slide</li>
+							<li>Bolded Multirun simulation because that will be a common example we come back to since the spaces that we talk about between the scalar fields and Reeb graphs are automatically the same</li>
+							<li style="color:blue;">Click</li>
+							<li style="color:red;">Read slide</li>
+							<li>Multiple different metrics that have been created to compare topological structures</li>
+							<li style="color:blue;">Click</li>
+							<li style="color:red;">Read slide</li>
+							<li>Latter two are metrics defined on Reeb graphs</li>
+							<li>We'll come back to this slide</li>
+							<li>But while there are a multitude of different metrics which have been created to compare top structures, there's limited work on how they work from a data analysis perspective</li>
+							<li style="color:blue;">Click</li>
+							<li>Here, we focus on the interlreaving distance, which is rooted in category theory.</li>
+						</ol>
+					</aside>
+
+				</section>
+
+				<!-- <section>
+					<h3>Current Work</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Constructing a comprehensive Survey of Reeb graph distance metrics to provide the following contributions:
+							</div>
+						</div>
+						<div class="sub-statement fragment fade-up" style="margin-left:80px">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								provide concrete examples for these distances to help develop the intuition of new researchers;
+							</div>
+						</div>						
+						<div class="sub-statement fragment fade-up" style="margin-left:80px">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								provide returning researchers a reference for fundamental properties of each metric;
+							</div>
+						</div>						
+						<div class="sub-statement fragment fade-up" style="margin-left:80px">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								compare and contrasts the various metrics and introduce a common nomenclature for their properties in general;
+							</div>
+						</div>						
+						<div class="sub-statement fragment fade-up" style="margin-left:80px">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								provide guidelines for which applied scenarios each metric would be well-suited;
+							</div>
+						</div>						
+						<div class="sub-statement fragment fade-up" style="margin-left:80px">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								discuss the computational hurdles and the literature of possible simpler cases for each metric, such as the merge tree and contour tree.
+							</div>
+						</div>						
+
+					</div>
+
+
+
+
+
+				</section> -->
+
+
+
+				<section>
+					<h3>Persistence Diagrams</h3>
+
+
+					<div class="importance-box def fragment fade-left">
+						<div class="content">
+							<div class="header">
+								<div class="label">Definition 1.3</div> 						
+							</div>
+							<div class="text-area">
+								Each critical point of a scalar field corresponds to the creation or deletion of a feature. We track this by looking at the evolution of Homology groups as we introduce critical points, in increasing function order. The <b>persistence</b> measures the length of time it takes for a feature to be born and then die (birth and death time). The <b>persistence diagram</b> encodes this information by plotting a point $(a,b)$ where $a$ is the birth time and $b$ is the death time.
+							</div>		
+						</div>
+					</div>
+
+					<div class="img-container fragment fade-up">
+						<img src="figures/CriticalPointExampleAlt.png" width="1100"/>
+					</div>
+
+			</section>
+
+			<section>
+				<h3>Bottleneck Distance</h3>
+
+				<div class="importance-box def fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Definition 1.4</div>
+						</div>
+						<div class="text-area">
+							Let $(\mathbb{X},f),(\mathbb{Y},g)$ be two scalar fields and $X:=\text{ExDgm}_d(f),Y:=\text{ExDgm}_d(g)$ be the their corresponding $d$-dimensional extended persistence diagrams. We define the <b>bottleneck distance</b> $d_B$ between these diagrams as \[d_B(X,Y) = \inf_{\eta: X \to Y} \sup_{x \in X}||x - \eta(x)||_{\infty},\]
+							where $\eta$ is a bijection between $X,Y$.
+						</div>	
+					</div>
+				</div>
+
+				<div class="img-container fragment fade-up">
+					<img src="figures/BottleneckExample.png" width="1000"/>
+				</div>
+
+			</section>
+
+
+
+			<!-- <section>
+				<h3>Different Scalar fields with a bottleneck distance of 0</h3>
+				<div class="img-container fragment fade-up">
+					<img src="figures/ScalarFieldTwo.jpg" width="1800"/>
+				</div>
+			</section> -->
+
+			<!-- <section>
+				<h3>Interleaving Distance</h3>
+				<div>We can view Reeb graphs as "pre-cosheafs" -- functors which assign data to open invtervals of a topological set</div>
+				<div>The interleaving distance introduces a smoothing operation, which essentially reduces the information within a Reeb graph</div>
+				<div>We then measure the distance between Reeb graphs as the minimum amount we need to smooth until the Reeb graphs are isomorphic</div>
+			</section> -->
+
+			<section>
+				<h3>Interleaving Distance</h3>
+
+				<div style="display:flex;flex-direction:column;">
+					<div class="statement fragment fade-up"  data-fragment-index="1">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							We can view Reeb graphs as a type of structure called a <b>cosheaf</b> -- an assignment of data to the open sets of a topological space.
+						</div>
+					</div>
+					<div class="img-container fragment fade-in" data-fragment-index="2">
+						<img src="figures/ReebToCosheaf.jpg" width="1000"/>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="3">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">The <b>smoothing</b> operation is a way to reduce the amount of information in a cosheaf by making the open spaces more "coarse".</div>
+					</div>
+
+				</div>
+
+			</section>
+
+
+
+
+			<section>
+				<h3>Smoothing Reeb Graphs</h3>
+				
+				<div style="display:flex;flex-direction:row;" class="fragment fade-in">
+					<svg class="smoothing" style="margin-top:50px;display:flex;flex-direction:column;align-items: center;" width=500 height=500>
+						<image href="figures/ReebSmoothHole.png" width=411.4 height=460 x=40></image>
+						<image class="bar" href="figures/SmoothOverlay.png" x=35 y=71 width=461 height=348></image>
+					</svg>
+
+					<svg class="smoothing" style="margin-top:50px;margin-left:100px;display:flex;flex-direction:column;align-items: center;" width=500 height=500>
+						<image href="figures/ReebSmoothLeaf.png" width=411.4 height=460 x=40></image>
+						<image class="bar" href="figures/SmoothOverlay.png" x=38 y=71 width=461 height=348></image>
+					</svg>
+				</div>
+				</section>
+
+				<section>
+					<h3>Interleaving Distance</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up"  data-fragment-index="1">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								<b>The interleaving distance essentially tells us how much smoothing is required to make two Reeb graphs isomorphic.</b>
+							</div>
+						</div>
+						<div class="img-container fragment fade-up">
+							<img src="figures/InterleavingExample.png" width="600"/> 
+						</div>
+					</div>
+				</section>
+
+				<!-- <section>
+					<h3>Interleaving Distance</h3>
+
+					<div class="fragment fade-out" style="display:flex;flex-direction:column;" data-fragment-index="3">
+						<div class="statement fragment fade-up"  data-fragment-index="1">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								An $\varepsilon$-interleaving is an approximate isomorphism between pre-cosheafs which is constructed using mappings between smoothed pre-cosheafs. A $0$-interleaving is a well-defined isomorphism between two pre-cosheafs.
+							</div>
+						</div>
+						<div class="importance-box def alt fragment fade-up" style="margin-top:30px;" data-fragment-index="2">						
+							<div class="content">
+								<div class="header">
+									<div class="label">Definition 1.5</div> 						
+								</div>
+								<div class="text-area">
+									The <b>interleaving distance</b> $d_I$ between two Reeb graphs $\mathcal{R}_f,\mathcal{R}_g$ is defined as the minimum $\varepsilon$ such that there exists a $\varepsilon$-interleaving between the associated pre-cosheafs $\mathsf{F},\mathsf{G}$. 
+								</div>			
+							</div>
+						</div>
+					</div>
+
+					<div style="display:flex;flex-direction:row;position:absolute;top:30px;">
+						<div class="fragment fade-in" data-fragment-index="3">
+							<img src="figures/InterleavingExample.jpg" width="1300"/>
+						</div>
+						<div class="fragment fade-in" data-fragment-index="4">
+							<img src="figures/InterleavingExampleValue.jpg" width="500"/>
+						</div>	
+					</div>
+
+				</section> -->
+
+			<section>
+				<h3>Gromov-Hausdorff and Functional Distortion Distance </h3>
+				<div style="display:flex;flex-direction:column;">
+					<div class="statement fragment fade-up"  data-fragment-index="1">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							Suppose $A$ and $B$ are two metric spaces and let $i_A:A \to Z$,$i_B:B \to Z$ be isometric embeddings into a common metric space $Z$. We can then find the Hausdorff distance between the embeddings: $d_H(i_A(A),i_B(B))$. The <b>Gromov-Hausdorff distance</b> defines the distance between $A$ and $B$ to be the infimum overa ll embeddings and common space $Z$.
+						</div>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="2">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							The <b>Functional distortion distance</b> $d_{FD}$ between two Reeb graphs is essentially identical to the Gromov-Hausdorff for metric spaces, envisioning $\mathcal{R}_f$ and $\mathcal{R}_g$ as topological graphs.
+						</div>
+					</div>	
+					<div class="statement fragment fade-up"  data-fragment-index="2">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							<b>This distances guages the amount of "distortion" needed to fit each Reeb graph within one another.</b>
+						</div>
+					</div>	
+				</div>
+			</section>
+
+			<!-- <section>
+				<h3>Map and Point Distortion</h3>
+				<div class="importance-box def fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Definition 1.3</div> 						
+						</div>
+						<div class="text-area">
+							Let $u,v \in \mathcal{R}_f$ (not necessarily vertices) and let $\pi$ be a continuous path between $u$ and $v$. The <b>range</b> of this path is the interval $\text{range}(\pi) = [\min_{x\in\pi}f(x),\max_{x\in\pi}f(x)]$. The <b>height</b> is the length of the range, denoted $\text{height}(\pi) = \max_{x\in\pi}f(x) - \min_{x\in\pi}f(x)$. We define the distance between $u$ and $v$ to be \[d_f(u,v) = \min_{\pi:u\rightsquigarrow v}\text{height}(\pi),\]
+							where $\pi$ ranges over all continuous paths from $u$ to $v$, denoted $u \rightsquigarrow v$.
+						</div>		
+					</div>
+				</div>
+				<div class="importance-box def fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Definition 1.3</div> 						
+						</div>
+						<div class="text-area">
+							The <b>point distortion</b> $\lambda$ between $(x,y),(x',y') \in G(\Phi,\Psi)$ is defined as \[\lambda((x,y),(x',y')) = \frac12|d_f(x,x') - d_g(y,y')|,\]
+							where $G(\Phi,\Psi)$ is the union of the graphs of $\Phi$ and $\Psi$.
+							The <b>map distortion</b> $D(\Phi,\Psi)$ between $\mathcal{R}_f$ and $\mathcal{R}_g$ is the supremum of point distortions ranging over all possible pairs in the supergraph $G(\Phi,\Psi)$. That is, \[D(\Phi,\Psi) = \sup_{(x,y),(x',y') \in G(\Phi,\Psi)}\lambda((x,y),(x',y')).\]
+						</div>		
+					</div>
+				</div>
+			</section> -->
+
+			<section>
+				<h3>Map and Point Distortion</h3>
+				<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;width:100%;height:100%">
+					<div  class="fragment fade-in" data-fragment-index="1" style="display:flex;flex-direction:column;align-items: center;">
+						<img src="figures/MapDistortionA.png" width="600"/>
+						<!-- <div>$D(\Phi,\Psi) = \frac{1}{2}\max\{|a_3-b_3|,|b_3-b_2|\}$</div> -->
+					</div>
+					<div  class="fragment fade-in" data-fragment-index="2" style="display:flex;flex-direction:column;align-items: center;">
+						<img src="figures/MapDistortionB.png" width="600"/>
+						<!-- <div>$D(\Phi,\Psi) = \frac{1}{2}|b_3-b_2|$</div> -->
+					</div>
+				</div>
+			</section>
+
+			<!-- <section>
+				<h3>Functional Distortion Distance</h3>
+				<div style="display:flex;flex-direction: column;">
+					<div class="importance-box def fragment fade-left">
+						<div class="content">
+							<div class="header">
+								<div class="label">Definition 1.3</div> 						
+							</div>
+							<div class="text-area">
+								The <b>functional distortion distance</b>is defined as <div style="width:700px;display:inline-block;color:white">a</div> \[d_{FD}(\mathcal{R}_f,\mathcal{R}_g) = \inf_{\Phi,\Psi}\max\{D(\Phi,\Psi),||f-g\circ\Phi||_{\infty},||f\circ\Psi -g||_{\infty}\},\] where $\Phi$ and $\Psi$ range over all continuous maps between $\mathcal{R}_f$ and $\mathcal{R}_g$.
+							</div>		
+						</div>
+					</div>
+					<div class="statement fragment fade-up">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							The terms $||f-g\circ\Psi||_{\infty}$ and $||f\circ\Psi-g||_{\infty}$ account for Reeb graphs which are scales, reflections, or shifts of each other.
+						</div>
+					</div>	
+				</div>
+			</section> -->
+
+
+			<!-- <section>
+				<h3>Functional Distortion Distance</h3>
+				<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:-80px;width:100%;height:100%" class="fragment fade-in" data-fragment-index="1">
+					<img src="figures/FunctionalExample.jpg" width="1600"/>
+				</div>
+				<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:200px;width:100%;height:100%" class="fragment fade-in" data-fragment-index="4">
+					<img src="figures/FunctionalExampleValue.jpg" width="1600"/>
+				</div>
+			</section> -->
+
+			<section>
+				<h3>Reeb Graph Edit Distance</h3>
+				<div style="display:flex;flex-direction:column;">
+					<div class="statement fragment fade-up"  data-fragment-index="1">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							Edit distances have been classically used in both graph theory to define the distance between graphs while also being useful in areas such as string matching.
+						</div>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="2">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							The Reeb graph edit distance allows a set of <b>elementary deformations</b> in order to carry one Reeb graph $\mathcal{R}_f$ to another $\mathcal{R}_g$. We assign a <b>cost</b> to the sequence that achieves this, and then take the distance to be the minimum cost over all sequences.
+						</div>
+					</div>
+					<div style="display:flex;flex-direction:row;justify-content:center;align-items:center;top:30px;width:100%;" class="fragment fade-in" data-fragment-index="3">
+						<img src="figures/ElementaryDeformations.jpg" width="800"/>
+					</div>	
+				</div>
+			</section>
+
+			<section>
+				<h3>Reeb Graph Edit Distance</h3>
+				<div style="display:flex;flex-direction:column;">
+					<div style="display:flex;flex-direction:row;justify-content:center;align-items:center;margin-top:-40px;width:100%;" class="fragment fade-in" data-fragment-index="1">
+						<img src="figures/ExampleOneRGED.png" width="1200"/>
+						<!-- <div style="position: absolute;width:700px;height:500px;background-color:white;" class="fragment fade-out" data-fragment-index="2"></div>	 -->
+					</div>
+					<div style="display:flex;flex-direction: row;">
+						<div class="card center fragment fade-up" style="font-size:0.9em;">
+							<div class="content">
+								Set of elementary deformations varies between dimensions.
+							</div>
+						</div>
+						<div class="card center fragment fade-up" style="font-size:0.9em;">
+							<div class="content">
+								There are no deformations to allow for comparison of non-homemorphic Reeb graphs.
+							</div>
+						</div>
+					</div>	
+				</div>
+
+
+			</section>
+
+
+
+			<section>
+				<h3>Categorical Edit distance</h3>
+				<div style="display:flex;flex-direction:column;align-items: center;">
+					<div style="display:flex;flex-direction:row;">
+						<div class="card center fragment fade-up" style="font-size:0.9em;" data-fragment-index="1">
+							<div class="content">
+								The same topological space $\mathbb{X}$ can be used to create multiple different Reeb graphs
+							</div>
+						</div>
+						<div class="card center fragment fade-up" style="font-size:0.9em;" data-fragment-index="3">
+							<div class="content">
+								The same Reeb graph $\mathcal{R}_f$ can arise from multiple different topological spaces.
+							</div>
+						</div>
+						<!-- <div class="statement fragment fade-up" data-fragment-index="1">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+							</div>
+						</div>	 -->
+						<!-- <div class="statement fragment fade-up" data-fragment-index="3">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								The same Reeb graph $\mathcal{R}_f$ can arise from multiple different topological spaces.
+							</div>
+						</div>	 -->
+					</div>
+					<div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;width:95%;">
+						<div  class="fragment fade-in" data-fragment-index="2" style="display:flex;flex-direction:column;align-items: center;">
+							<img src="figures/EditDgm1.png" width="500"/>
+						</div>
+						<div  class="fragment fade-in" data-fragment-index="4" style="display:flex;flex-direction:column;align-items: center;">
+							<img src="figures/EditDgm2.png" width="500"/>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h3>Reeb zigzag diagrams</h3>
+				<div  style="display:flex;flex-direction:column;align-items: centers;justify-content:center;height:75%">
+					<img src="figures/ReebZigZagDgm.png" width="1200"/>
+				</div>
+				<div style="align-self:center;" class="fragment fade-up"><b>The cost of the zigzag diagram is essentially the largest change in function value for any given vertex.</b></div>
+			</section>
+			
+			<section>
+				<h3>Categorical Edit Distance</h3>
+				<div style="display:flex;flex-direction:column;">
+					<div style="display:flex;flex-direction:row;">
+						<div class="card center fragment fade-up" style="font-size:0.9em;" data-fragment-index="1">
+							<div class="content">
+								Each $X$ can be a 1-dimensional topological graph instead of an arbitrary topological space.
+							</div>
+						</div>
+						<div class="card center fragment fade-up" style="font-size:0.9em;" data-fragment-index="2">
+							<div class="content">
+								We can have any "complete" sequence of edits inform our decision on constructing the zigzag diagram.
+							</div>
+						</div>
+					</div>
+					<div class="img-container fragment fade-up" style="margin-top:20px">
+						<img src="figures/CategoricalED1.png" width=900/>
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h3>Distance Properties</h3>
+				<div class="importance-box property fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Property 1 (Stability)</div> 						
+						</div>
+						<div class="text-area">
+							Let $(\mathbb{X},f),(\mathbb{X},g)$ be two constructible scalar fields defined on the same domain $\mathbb{X}$. We say that $d$ is <b>stable</b> if $d(\mathcal{R}_f,\mathcal{R}_g) \leq ||f-g||_\infty$. 
+						</div>		
+					</div>
+				</div>
+
+				<div class="importance-box property fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Property 2 (Discriminativity)</div> 						
+						</div>
+							<div class="text-area">
+								Let $(\mathbb{X},f),(\mathbb{X},g)$ be two constructible scalar fields. Let $d_0$ and $d$ be two stable distance metrics on Reeb graphs. We say that $d$ is more <b>discriminative</b> than $d_0$ (the baseline) if there exists a constant $c > 0$ such that \[d_0(\mathcal{R}_f,\mathcal{R}_g) \leq c\cdot d(\mathcal{R}_f,\mathcal{R}_g),\]
+							and if there does <span style="font-style:italic">not</span> exist a constant $c'$ such that $d_0(\mathcal{R}_f,\mathcal{R}_g) = c'\cdot d(\mathcal{R}_f,\mathcal{R}_g)$.
+							</div> 	
+						</div>
+				</div>
+
+				<div class="importance-box property fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Property 3 (Path Component Sensitivity)</div> 						
+						</div>
+						<div class="text-area">
+							Let $(\mathbb{X},f)$ and $(\mathbb{Y},g)$ be two constructible scalar fields and suppose $\mathcal{R}_f$ and $\mathcal{R}_g$ have a different number of path connected components. We say that $d$ is <b>path component sensitive</b> if $d(\mathcal{R}_f,\mathcal{R}_g) = \infty$.   
+						</div>		
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h3>Distance Properties</h3>
+				<div class="importance-box property fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Property 4 (Universality)</div> 						
+						</div>
+						<div class="text-area">
+							We say that a stable distance $d_U$ between two Reeb graphs $\mathcal{R}_f$ and $\mathcal{R}_g$ is <b>universal</b> if for all other stable distances $d_S$, we have 
+							\[d_S(\mathcal{R}_f,\mathcal{R}_g) \leq d_U(\mathcal{R}_f,\mathcal{R}_g).\]
+						</div>		
+					</div>
+				</div>
+
+				<div class="importance-box property fragment fade-left">
+					<div class="content">
+						<div class="header">
+							<div class="label">Property 5 (Isomorphism Invariance)</div> 						
+						</div>
+							<div class="text-area">
+								Let $\mathcal{R}_f$ and $\mathcal{R}_g$ be two Reeb graphs. We say that $d$ is <b>isomorphism invariant</b> if $d(\mathcal{R}_f,\mathcal{R}_g) = 0$ if and only if $\mathcal{R}_f$ and $\mathcal{R}_g$ are Reeb graph isomorphic. 
+							</div> 	
+						</div>
+				</div>
+
+				<!-- <div class="statement fragment fade-up" >
+					<i class="bullet fad fa-angle-right fa-3x"></i>
+					<div class="text-area">
+						Other loosely defined properties include scale dependence, shift dependence, and max-feature dependence.
+					</div>
+				</div> -->
+
+			</section>
+			<section data-transition="none">
+				<h3>Distance from A Reeb Graph</h3>
+
+				<div class="img-container fragment fade-up">
+					<img src="figures/DistanceFromRf0.png"/>
+				</div>
+
+				<!-- <div style="display:flex;flex-direction:column;position:absolute;top:100px" data-transition="none" class="fragment fade-out" data-fragment-index="3">
+					<div class="img-container">
+						<img src="figures/DistanceFromRf0.png"/>
+					</div>
+				</div> -->
+
+				<!-- <div class="fragment fade-up" data-fragment-index="3"data-transition="none"  style="position:absolute;top:100px;display:flex;flex-direction:column;">
+					<div class="img-container">
+						<img src="figures/DistanceFromRf.png"/>
+					</div>
+				</div> -->
+
+
+
+			</section>
+			<section data-transition="none">
+				<h3>Distance from A Reeb Graph</h3>
+				<div class="img-container">
+					<img src="figures/DistanceFromRf.png"/>
+				</div>
+			</section>
+			<section>
+				<h3>Distance Properties</h3> 
+				<div class="img-container" style="display:flex;flex-direction:row;width:100%;flex-wrap:wrap">
+					<img class="fragment fade-up" src="figures/BottleneckProperties.png" width="500"/>
+					<img class="fragment fade-up" src="figures/InterleavingProperties.png" width="500"/>
+					<img class="fragment fade-up" src="figures/FDDProperties.png" width="500"/>
+					<img class="fragment fade-up" src="figures/RGEDProperties.png" width="500"/>
+					<img class="fragment fade-up" src="figures/CategoricalProperties.png" width="500"/>
+				</div>
+			</section>
+
+			<section>
+				<h3>Pairwise Inequalities</h3>
+				<div class="img-container">
+					<img src="figures/DistanceDgmColoredHorizontal.png"/>
+				</div>
+			</section>
+
+			<section>
+				<h3>Computational Complexity</h3>
+				<div style="display:flex;flex-direction:column;">
+					<div class="img-container fragment fade-up" style="margin-top:-20px;">
+						<img src="figures/CompuationalComplexity0.png" width="900"/>
+					</div>
+					<div class="img-container fragment fade-up" style="margin-top:-20px;">
+						<img src="figures/CompuationalComplexity1.png" width="900"/>
+					</div>
+				</div>
+			</section>
+
+				<!-- <section>
+					<h3>Stretching and Shifting Sensitivity</h3>
+					<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:0px;width:100%;height:100%">
+						<img src="figures/StretchingAndShiftingExample.jpg" width="1600"/>
+					</div>
+				</section> -->
+
+				
+
+
+
+				<!-- <section>
+					<h3>Insensitivy to Multiple Features</h3>
+					<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:100px;width:100%;height:100%" class="fragment fade-out" data-fragment-index="1">
+						<img src="figures/ExampleThreeA.png" width="1400"/>
+					</div>
+					<div style="display:flex;flex-direction:column;position:absolute;justify-content:center;align-items:center;top:20px;width:100%;height:100%" class="fragment fade-in-then-out" data-fragment-index="1">
+						<img src="figures/ExampleThreeB.png" style="margin:0px;" width="1500"/>
+
+					</div>
+					<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:20px;width:100%;height:100%" class="fragment fade-in-then-out" data-fragment-index="2">
+						<img src="figures/ExampleThreeC.png" width="1700"/>
+					</div>
+					<div style="display:flex;flex-direction:row;position:absolute;justify-content:center;align-items:center;top:20px;width:100%;height:100%" class="fragment fade-in-then-out" data-fragment-index="3">
+						<img src="figures/ExampleThreeD.png" width="1700"/>
+					</div>
+				</section> -->
+
+				<section>
+					<h3>Wassterstein Distance</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up"  data-fragment-index="2">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								The Wasserstein distance is a variation of the bottleneck distance which is sensitive to multiple feature differences in the data
+							</div>
+						</div>
+						<div class="importance-box def fragment fade-left">
+							<div class="content">
+								<div class="header">
+									<div class="label">Definition 1.7</div>
+								</div>
+								<div class="text-area">
+									Let $(\mathbb{X},f),(\mathbb{Y},g)$ be two scalar fields and $X:=\text{ExDgm}_d(f),Y:=\text{ExDgm}_d(g)$ be the their corresponding $d$-dimensional extended persistence diagrams. We define the <b>$\mathbf{q^{th}}$-Wasserstein distance</b> $d_{W_q}$ between these diagrams as \[d_{W_q}(X,Y) = \Bigg[\inf_{\eta: X \to Y} \sum_{x \in X}||x - \eta(x)||^q_{\infty} \Bigg]^{1/q}\]
+									where $\eta$ is a bijection between $X,Y$.
+								</div>	
+							</div>
+						</div>							
+					</div>
+				</section>
+
+
+
+				<!-- <section>
+					<h3>Computational Complexity of Each metric</h3>
+					<div class="statement fragment fade-up"  data-fragment-index="1">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							Bottleneck distance is computationally reasonable, and has been used in many TDA applications
+						</div>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="2">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							Interleaving Distance is at least graph-isomorphism hard (NP-hard).
+						</div>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="3">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							There exists no polynomial time algorithm for Functional Distortion Distance (nor the Gromov-Hausdorff distance)
+						</div>
+					</div>
+					<div class="statement fragment fade-up"  data-fragment-index="4">
+						<i class="bullet fad fa-angle-right fa-3x"></i>
+						<div class="text-area">
+							There exsists no polynomial time algorithm for Reeb graph edit distance. Edit distances have been shown to be difficult to compute in general.
+						</div>
+					</div>
+
+				</section> -->
+
+				<!-- <section>
+					<h3>Variants</h3>
+
+				</section> -->
+
+				<!-- <section>
+					<h3>(Our) Future Work</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Alter the Reeb graph edit distance to be sensitive to multiple features -- similar to Wasserstein distance
+							</div>
+						</div>
+						<div class="img-container fragment fade-up" style="margin:0px;">
+							<img src="figures/EditDistanceChange.png" style="margin:0px;" width=1400/>
+						</div>
+						<div class="sub-statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								The resulting metric should have similar properties as the original Reeb graph edit distance, in addition to sensitivity to multiple featurs. But most likely we will lose stability (in the previously defined sense) and universality would be difficult to formulate.
+							</div>
+						</div>
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								After, use current techniques in graph similarity learning to compute this theorized metric on Reeb graphs
+							</div>
+						</div>
+						<div class="sub-statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-2x"></i>
+							<div class="text-area">
+								We can (hopefully) compute this edit distance on a set of small enough graphs by hand or via other computational methods to use for training.
+							</div>
+						</div>							
+					</div>
+				</section> -->
+
+				<!-- <section>
+					<h3>(Other Possible) Future Work</h3>
+					<div style="display:flex;flex-direction:column;">
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Alter Functional Distortion distance and Interleaving distance to be sensitive to multiple features.
+							</div>
+						</div>
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Investigate computational hurdles for simpler cases such as contour tree and merge tree.
+							</div>
+						</div>
+						<div class="statement fragment fade-up">
+							<i class="bullet fad fa-angle-right fa-3x"></i>
+							<div class="text-area">
+								Investigate specific hurdles of each distance to see if there is area for compuatational improvement.
+							</div>
+						</div>
+					</div>
+				</section> -->
+
+				<section>
+					<div style="display:flex;flex-direction:column;justify-content: center;align-items:center;flex:1;">
+						<div style="font-size:3.0em;font-weight:600">Thank You!</div>
+
+					</div>
+				</section>
+
+
+
+
+				<!-- <section>
+					<h3>Topological Metrics (Revisit)</h3>
+
+
+
+					<div style="display:flex;flex-direction:row;height: 100%;">
+						<div style="height: 100%;flex:0.5;display:flex;justify-content: center;align-items: center;">
+							<div class="metric-list">
+								<div>Bottleneck Distance [cite]</div>
+								<div>Wasserstein Distance [cite]</div>
+								<div>Functional Distortion Distance [cite]</div>
+								<div>Interleaving Distance [cite]</div>
+							</div>
+						</div>
+						<div style="height: 100%;flex:0.5;display:flex;justify-content: center;align-items: center;flex-direction:column;">
+
+							<div style="flex:0.3;display:flex;flex-direction:column;align-items:center;">
+								<div class="img-container" style="flex:0.3">
+									<img src="figures/bottleneckDistance.png" style="width:70%"/>
+								</div>
+								<div style="font-size:0.5em; position:relative;top:-10px;font-weight:700;">Bottlneck Distance [stabOfPersDgms]</div>
+							</div>
+							<div style="flex:0.3;display:flex;flex-direction:column;align-items:center;">
+								<div class="img-container" style="flex:0.3">
+									<img src="figures/bottleneckDistance.png" style="width:70%"/>
+								</div>
+								<div style="font-size:0.5em; position:relative;top:-10px;font-weight:700;">Bottlneck Distance</div>
+							</div>
+							<div style="flex:0.3;display:flex;flex-direction:column;align-items:center;">
+								<div class="img-container" style="flex:0.3">
+									<img src="figures/bottleneckDistance.png" style="width:70%"/>
+								</div>
+								<div style="font-size:0.5em; position:relative;top:-10px;font-weight:700;">Bottlneck Distance</div>
+							</div>
+						</div>
+					</div>
+
+
+
+
+				</section> -->
+
+
+				<!-- <section>
+					<h3>Interleaving Example of Sensitivty/Insensitivity</h3>
+				</section>
+
+				<section>
+					<h3>Proposal for Milestone 0</h3>
+					<div class="main-point" style="margin-top:100px;">
+						<div>We would like to conduct a survey / empirical study of the most prevelant topological metrics to examine their role in measuring similarity between scalar fields and /or their role in multifaceted data analysis in general. Furthermore, we would like to generate a comprehensive list of the computational complexities that each of these metrics have.</div>
+					</div>
+				</section>
+				<section>
+					<h3>Graph Convolutional Neural Networks</h3>
+					<ul>
+						<li>The input is a Graph $G = (V,E)$ as well as a matrix of node feature vectors $\mathbf{X}$.</li>
+						<li>Just as in CNNs, we define a receptive field which is the set of node in the graph which contribute information to a target node</li>
+						<li>At each layer, we sweep through the graph to update the state of each node (so each node is at some point the target node for a receptive field)</li>
+						<li>The final output is a matrix of <i>hidden feature vectors</i> $\mathbf{H}$. We can add a final layer to this GCNN which aggregates $\mathbf{H}$ to give a single readout, which will calssify the graph as a whole instead of the individual nodes.</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Learning Topological Similarity Metric Through Siamese Networks</h3>
+					<ul>
+						<li>A Siamese network consists of two neural networks with the same weight matrix at every step</li>
+						<li>Positive pairs and negative pairs are fed into the system (known to be close or far)</li>
+						<li>The weights are adjusted based on a metric which will be minimized for positive pairs and maximized on negative pairs [cite paper, even use image, perhaps]</li>
+						<div clas="img-container">
+							<img src="figures/brainNetwork.png"/>
+						</div>
+					</ul>
+				</section>
+				<section>
+					<h3>Proposal for Milestone A</h3>
+					<div class="main-point" style="margin-top:100px;">
+						We propose using the Siamese network architecture couple with spatial GCNNs to learn a similarity metric on Reeb graphs. To train this data in a supervised manner, we will the data set using various topological metrics found in Milestone 0. This is dependent on both the type of similarity we are learning as well as the computational difficulties that we might face for various metrics.
+					</div>
+				</section>
+				<section>
+					<h3>Proposal for Milestone B</h3>
+					<div class="main-point" style="margin-top:100px;">
+						Use machine learning to aid in the computation of specific modules for various topological metrics which are known to be difficult to compute.</div>
+				</section>
+				<section>
+					<h3>Proposal for Milestone C</h3>
+					<div class="main-point" style="margin-top:100px;">
+						<div>Leverage Graph Autoencoders to perform unsupervised training on the Siamese network to learn a similarity metric.</div>
+					</div>
+				</section> -->
+
+
+			</div>
+		</div>
+
+		<script src="js/other.js"></script>
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script src="plugin/math/math.js"></script>
+		<script src="plugin/chalkboard/plugin.js"></script>
+		<script>
+			Reveal.on('fragmentshown', event => {
+				if(event.fragment.classList.contains("remove")){
+					event.fragment.style.display = 'none';
+				}
+			})
+		</script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+				center:false,
+				maxScale:1,
+				minScale:1,
+				width:1200, //Can edit the width and height and stuff here
+				// Learn about plugins: https://revealjs.com/plugins/
+				height:800,
+				math: {
+					mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+					config: 'TeX-AMS_HTML-full',
+					// pass other options into `MathJax.Hub.Config()`
+					TeX: { Macros: { RR: "{\\bf R}" } }
+				},
+				chalkboard: {
+					chalkWidth:5,
+					chalkEffect: 0.0,
+					theme:"whiteboard"
+				},
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath,RevealChalkboard ]
+			});
+		</script>
+	</body>
+</html>

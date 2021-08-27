@@ -1,0 +1,267 @@
+
+$color-1:#83d3d4;
+$color-2: #2d8183;
+$color-3: #910c07;
+$color-4: #f48153;
+$color-5: #3498DB;
+$color-6:#0E8Bff;
+
+$color-7:#FAA6FF;
+$color-8: #FF6461;
+
+$grey: #F6F9F9;
+$text-grey:#7C8A96;
+
+$text-blue-alt:#2c659b;
+$text-blue:#1C4062;
+// $text-blue-alt:#214E77;
+$bullet-orange: #ff7d50;
+
+$border-grey: #DADCE0;
+
+$color-new: black;
+
+$importanceBoxFontSize:18px;
+
+
+.img-container{
+  display:flex;
+  justify-content:center;
+  flex:1;
+  align-items: center;
+}
+
+.img-container img{
+  margin-top:5px;
+} 
+
+.img-container.alt{
+  flex:0.7;
+  box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+  margin:5px;
+  width:90%;
+}
+
+.img-container.fixed{
+  flex:none;
+}
+
+.reveal .img-container img{
+  margin-top:0px;
+}
+
+
+.img-alt{
+  border-radius:5px;
+  box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+}
+
+
+.main-point{
+
+
+  background: #FBFBFB;
+  border: 1px solid $border-grey;
+  box-sizing: border-box;
+  box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.25);
+  // border-radius: 15px;
+  font-size:0.9em;
+  padding:25px;
+  width:700px;
+  font-weight:400;
+
+}
+
+.main-point.small{
+  font-size:0.85em;
+  padding:30px;
+  
+}
+ 
+
+.main-point.circ{
+  border:none;
+  width: 375px;
+  height:75px;
+  font-size:0.7em;
+  // font-size:0.8em;
+  // height:auto;
+  // height:auto;
+  // border-radius:50%;
+  border:3px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  border-left:4px solid $color-6;
+}
+
+
+
+
+
+
+.metric-list{
+  font-family:'Montserrat',sans-serif;
+  display: flex;
+  flex-direction:column;
+  justify-content: space-between;
+  height:75%;
+}
+
+.importance-box.thm,
+.importance-box.property,
+.importance-box.def{
+  flex-direction:row;
+  display:flex;
+  background-color: #FBFBFB;
+  border: 1px solid #DADCE0;
+  box-sizing: border-box;
+  box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.25);
+  margin-bottom:20px;
+  padding:5px 0px;
+  // border-radius:5px;
+}
+
+
+
+
+.importance-box .content{
+  display:flex;
+  flex-direction:column;
+  margin-left:10px;
+}
+
+
+.importance-box .header{
+  margin:15px 10px 0px 10px;
+  padding:0px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+}
+
+.importance-box .header .label{
+  font-family: Lato;
+  font-style: normal;
+  font-weight: bold;
+  font-size: $importanceBoxFontSize;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  color:white;
+  margin-left:0px;
+  margin-bottom:10px;
+  background-color: $color-5;
+  box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.25);
+
+  // border-radius:5px;
+  padding:2px 20px;
+}
+
+.importance-box.property .header .label{
+  background-color:$color-8;
+}
+
+// .importance-box .header .label:after{
+//   // content:":";
+//   margin-left:2px;
+// }
+
+
+
+
+
+.importance-box .text-area{
+  // width:1;
+  color:#333333;
+  font-family: 'Lato',sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: $importanceBoxFontSize;
+  line-height: 30px;
+  margin:12px 30px 18px 15px;
+  font-weight:500;
+  padding:5px 0px 5px 20px;
+}
+
+
+
+
+
+
+.iteration-step{
+  padding:20px;
+  margin:10px;
+  flex:1;
+  // border:1px solid black;
+  box-shadow:0px 3px 3px -2px rgba(0,0,0,0.2), 0px 3px 4px 0px rgba(0,0,0,0.14), 0px 1px 8px 0px rgba(0,0,0,0.12);
+  display:flex;
+  flex-direction:column;
+  // justify-content: center;
+
+}
+
+.iteration-step .label{
+  margin-top:40px;
+  font-size:0.8em;
+  font-weight:500;
+  color:$text-blue;
+  font-family:"Roboto Slab", sans-serif;
+}
+
+.iteration-step .content{
+  font-size:0.55em;
+  margin-top:30px;
+}
+
+.statement{
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  font-size:1.0em;
+  font-weight:500;
+  color:#333;
+  margin-top:10px;
+  width:100%;
+  height:100%;
+  padding:25px 20px;
+  .bullet{
+    color:#7353BA;  
+  }
+  .text-area{
+    margin-left:20px;
+  }
+}
+
+
+.sub-statement{
+  @extend .statement;
+  margin-left:60px;
+  width:80%;
+  font-size:0.9em;
+  .bullet{
+    color:$color-4;
+  }
+}
+
+.card{
+  padding:25px;
+  margin:20px;
+  display:flex;
+  flex:1;
+  font-size:0.7em;
+  // background: #FBFBFB;
+  border: 1px solid $border-grey;
+  box-sizing: border-box;
+  box-shadow: 3px 3px 1px rgba(0, 0, 0, 0.25);
+  font-weight:400;
+
+
+}
+
+.card.center{
+  text-align:center;
+  justify-content: center;
+  align-items:center;
+}
+
